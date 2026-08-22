@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: marketia-backend
+    runtime: node
+    region: oregon
+    buildCommand: npm install
+    startCommand: node src/app.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: N8N_BASE_URL
+        sync: false
+      - key: N8N_WEBHOOK_SECRET
+        sync: false
