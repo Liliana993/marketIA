@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="30" fill="#6366f1"/>
+  <text x="100" y="85" text-anchor="middle" font-family="Arial,sans-serif" font-size="48" font-weight="bold" fill="white">M</text>
+  <text x="100" y="135" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="bold" fill="white">MARKETIA</text>
+  <text x="100" y="158" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="rgba(255,255,255,0.7)">Tu minimercado inteligente</text>
+</svg>
