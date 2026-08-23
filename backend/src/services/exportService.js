@@ -8,8 +8,9 @@ const formatCurrency = (amount) => `$${Number(amount || 0).toLocaleString('es-AR
 const sanitizeText = (text) => {
   if (!text) return '';
   return String(text)
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^\x00-\x7F]/g, '');
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\x20-\x7E]/g, ' ');
 };
 
 export const exportProductsExcel = async () => {
@@ -60,12 +61,12 @@ export const exportProductsPdf = async () => {
 
     doc.fontSize(20).font('Helvetica-Bold').text(sanitizeText('Reporte de Productos'), { align: 'center' });
     doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica').text(`Total: ${products.length} productos`, { align: 'center' });
+    doc.fontSize(10).font('Helvetica').text(sanitizeText(`Total: ${products.length} productos`), { align: 'center' });
     doc.moveDown(1);
 
     const tableTop = doc.y;
     const colWidths = [120, 80, 90, 70, 70, 50, 70, 60];
-    const headers = ['Nombre', 'SKU', 'Categoría', 'P. Compra', 'P. Venta', 'Stock', 'Stock Mín.', 'Unidad'];
+    const headers = ['Nombre', 'SKU', 'Categoria', 'P. Compra', 'P. Venta', 'Stock', 'Stock Min.', 'Unidad'];
 
     doc.font('Helvetica-Bold').fontSize(9);
     let x = 40;
@@ -152,7 +153,7 @@ export const exportSalesPdf = async (query = {}) => {
 
     doc.fontSize(20).font('Helvetica-Bold').text(sanitizeText('Reporte de Ventas'), { align: 'center' });
     doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica').text(sanitizeText(`Total: ${sales.length} ventas — Facturación: ${formatCurrency(totalRevenue)}`), { align: 'center' });
+    doc.fontSize(10).font('Helvetica').text(sanitizeText(`Total: ${sales.length} ventas - Facturacion: ${formatCurrency(totalRevenue)}`), { align: 'center' });
     doc.moveDown(1);
 
     const tableTop = doc.y;

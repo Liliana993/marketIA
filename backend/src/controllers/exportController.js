@@ -8,7 +8,7 @@ export const exportProducts = async (req, res, next) => {
       const pdfBuffer = await exportService.exportProductsPdf();
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=productos.pdf');
-      return res.send(pdfBuffer);
+      return res.send(Buffer.from(pdfBuffer));
     }
 
     const excelBuffer = await exportService.exportProductsExcel();
@@ -16,6 +16,7 @@ export const exportProducts = async (req, res, next) => {
     res.setHeader('Content-Disposition', 'attachment; filename=productos.xlsx');
     res.send(Buffer.from(excelBuffer));
   } catch (error) {
+    console.error('Export products error:', error);
     next(error);
   }
 };
