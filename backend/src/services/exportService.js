@@ -5,6 +5,13 @@ import * as saleRepo from '../repositories/saleRepository.js';
 
 const formatCurrency = (amount) => `$${Number(amount || 0).toLocaleString('es-AR')}`;
 
+const sanitizeText = (text) => {
+  if (!text) return '';
+  return String(text)
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\x00-\x7F]/g, '');
+};
+
 export const exportProductsExcel = async () => {
   const { products } = await productRepo.findAll({}, { limit: 1000 });
 
@@ -51,7 +58,7 @@ export const exportProductsPdf = async () => {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    doc.fontSize(20).font('Helvetica-Bold').text('Reporte de Productos', { align: 'center' });
+    doc.fontSize(20).font('Helvetica-Bold').text(sanitizeText('Reporte de Productos'), { align: 'center' });
     doc.moveDown(0.5);
     doc.fontSize(10).font('Helvetica').text(`Total: ${products.length} productos`, { align: 'center' });
     doc.moveDown(1);
@@ -77,7 +84,7 @@ export const exportProductsPdf = async () => {
         y = 40;
       }
       x = 40;
-      const vals = [p.name, p.sku || '', p.category?.name || '', formatCurrency(p.purchasePrice), formatCurrency(p.salePrice), String(p.stock), String(p.minimumStock), p.unit];
+      const vals = [sanitizeText(p.name), p.sku || '', sanitizeText(p.category?.name || ''), formatCurrency(p.purchasePrice), formatCurrency(p.salePrice), String(p.stock), String(p.minimumStock), p.unit];
       vals.forEach((v, i) => {
         doc.text(String(v).substring(0, 20), x, y, { width: colWidths[i] });
         x += colWidths[i];
@@ -143,9 +150,9 @@ export const exportSalesPdf = async (query = {}) => {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    doc.fontSize(20).font('Helvetica-Bold').text('Reporte de Ventas', { align: 'center' });
+    doc.fontSize(20).font('Helvetica-Bold').text(sanitizeText('Reporte de Ventas'), { align: 'center' });
     doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica').text(`Total: ${sales.length} ventas — Facturación: ${formatCurrency(totalRevenue)}`, { align: 'center' });
+    doc.fontSize(10).font('Helvetica').text(sanitizeText(`Total: ${sales.length} ventas — Facturación: ${formatCurrency(totalRevenue)}`), { align: 'center' });
     doc.moveDown(1);
 
     const tableTop = doc.y;
@@ -168,7 +175,7 @@ export const exportSalesPdf = async (query = {}) => {
         doc.addPage();
         y = 40;
       }
-      const productNames = (s.items || []).map((i) => `${i.productName || i.product?.name || ''} x${i.quantity}`).join(', ').substring(0, 45);
+      const productNames = (s.items || []).map((i) => `${sanitizeText(i.productName || i.product?.name || '')} x${i.quantity}`).join(', ').substring(0, 45);
       x = 40;
       const vals = [new Date(s.createdAt).toLocaleDateString('es-AR'), productNames, String(s.items?.length || 0), formatCurrency(s.total)];
       vals.forEach((v, i) => {

@@ -61,12 +61,17 @@ export default function Sales() {
       const params = {};
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
-      const { data } = await exportApi.sales(format, params);
-      const url = window.URL.createObjectURL(new Blob([data]));
+      const response = await exportApi.sales(format, params);
+      const blob = new Blob([response.data], {
+        type: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `ventas.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       toast.success(`Ventas exportadas en ${format.toUpperCase()}`);
     } catch {

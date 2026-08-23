@@ -222,38 +222,37 @@ export default function ProductForm() {
 
           <div>
             <label className="block text-sm font-medium mb-1">Imagen del producto</label>
-            <div className="flex gap-3 mb-2">
+            <input
+              type="text"
+              value={form.image.startsWith('data:') ? '' : form.image}
+              onChange={(e) => setForm((prev) => ({ ...prev, image: e.target.value }))}
+              placeholder="Pegá una URL de imagen (https://...)"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 mb-2"
+            />
+            <p className="text-xs text-gray-400 mb-2">O subí un archivo desde tu computadora:</p>
+            <label className="inline-flex items-center gap-2 px-4 py-2 bg-brand-50 text-brand-700 rounded-lg text-sm font-medium cursor-pointer hover:bg-brand-100">
+              Subir archivo
               <input
-                type="text"
-                value={form.image && !form.image.startsWith('data:') ? form.image : ''}
-                onChange={(e) => setForm((prev) => ({ ...prev, image: e.target.value }))}
-                placeholder="https://ejemplo.com/imagen.jpg"
-                className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  if (file.size > 500000) {
+                    toast.error('La imagen debe ser menor a 500KB');
+                    return;
+                  }
+                  const reader = new FileReader();
+                  reader.onload = (ev) => {
+                    setForm((prev) => ({ ...prev, image: ev.target.result }));
+                  };
+                  reader.readAsDataURL(file);
+                }}
+                className="hidden"
               />
-              <label className="flex items-center gap-2 px-4 py-2 bg-brand-50 text-brand-700 rounded-lg text-sm font-medium cursor-pointer hover:bg-brand-100 whitespace-nowrap">
-                Subir archivo
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    if (file.size > 500000) {
-                      toast.error('La imagen debe ser menor a 500KB');
-                      return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                      setForm((prev) => ({ ...prev, image: ev.target.result }));
-                    };
-                    reader.readAsDataURL(file);
-                  }}
-                  className="hidden"
-                />
-              </label>
-            </div>
+            </label>
             {form.image && (
-              <div className="mt-2 flex items-center gap-3">
+              <div className="mt-3 flex items-center gap-3">
                 <img src={form.image} alt="Preview" className="h-20 w-20 object-cover rounded-lg border" />
                 <button
                   type="button"

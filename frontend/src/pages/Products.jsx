@@ -47,12 +47,17 @@ const Products = () => {
   const handleExport = async (format) => {
     setExporting(format);
     try {
-      const { data } = await exportApi.products(format);
-      const url = window.URL.createObjectURL(new Blob([data]));
+      const response = await exportApi.products(format);
+      const blob = new Blob([response.data], {
+        type: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `productos.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       toast.success(`Productos exportados en ${format.toUpperCase()}`);
     } catch {
