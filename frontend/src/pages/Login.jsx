@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Store } from "lucide-react";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,7 +17,9 @@ const Login = () => {
     setError("");
     setLoading(true);
     try {
-      await login(email, password);
+      const data = await login(email, password);
+      const name = data?.user?.first_name || "Usuario";
+      toast.success(`¡Bienvenido/a, ${name}! 👋`, { duration: 3000 });
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Error al iniciar sesión");
