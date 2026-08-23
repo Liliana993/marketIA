@@ -227,14 +227,15 @@ export default function ProductForm() {
               value={form.image.startsWith('data:') ? '' : form.image}
               onChange={(e) => setForm((prev) => ({ ...prev, image: e.target.value }))}
               placeholder="Pegá una URL de imagen (https://...)"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 mb-2"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 mb-3"
             />
             <p className="text-xs text-gray-400 mb-2">O subí un archivo desde tu computadora:</p>
             <label className="inline-flex items-center gap-2 px-4 py-2 bg-brand-50 text-brand-700 rounded-lg text-sm font-medium cursor-pointer hover:bg-brand-100">
-              Subir archivo
+              Seleccionar archivo
               <input
                 type="file"
                 accept="image/*"
+                style={{ display: 'none' }}
                 onChange={(e) => {
                   const file = e.target.files[0];
                   if (!file) return;
@@ -248,7 +249,6 @@ export default function ProductForm() {
                   };
                   reader.readAsDataURL(file);
                 }}
-                className="hidden"
               />
             </label>
             {form.image && (
