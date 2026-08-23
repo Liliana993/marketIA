@@ -14,7 +14,7 @@ const sanitizeText = (text) => {
 };
 
 export const exportProductsExcel = async () => {
-  const { products } = await productRepo.findAll({}, { limit: 1000 });
+  const products = await productRepo.findAll({}, { limit: 1000 });
 
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet('Productos');
@@ -50,50 +50,42 @@ export const exportProductsExcel = async () => {
 };
 
 export const exportProductsPdf = async () => {
-  const { products } = await productRepo.findAll({}, { limit: 1000 });
+  const products = await productRepo.findAll({}, { limit: 1000 });
 
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 40, size: 'A4', layout: 'landscape', bufferPages: true });
+    const doc = new PDFDocument({ size: 'A4', layout: 'landscape' });
     const chunks = [];
     doc.on('data', (chunk) => chunks.push(chunk));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
+    doc.on('error', (err) => reject(err));
 
-    doc.fontSize(20).font('Helvetica-Bold').text(sanitizeText('Reporte de Productos'), { align: 'center' });
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica').text(sanitizeText(`Total: ${products.length} productos`), { align: 'center' });
-    doc.moveDown(1);
+    try {
+      doc.fontSize(18).text(sanitizeText('Reporte de Productos'), { align: 'center' });
+      doc.moveDown(0.5);
+      doc.fontSize(10).text(sanitizeText(`Total: ${Array.isArray(products) ? products.length : 0} productos`), { align: 'center' });
+      doc.moveDown(1);
 
-    const tableTop = doc.y;
-    const colWidths = [120, 80, 90, 70, 70, 50, 70, 60];
-    const headers = ['Nombre', 'SKU', 'Categoria', 'P. Compra', 'P. Venta', 'Stock', 'Stock Min.', 'Unidad'];
+      const headers = ['Nombre', 'SKU', 'Categoria', 'P.Compra', 'P.Venta', 'Stock', 'Stock Min', 'Unidad'];
+      doc.fontSize(9).font('Helvetica-Bold').text(headers.join('    '));
+      doc.font('Helvetica').fontSize(8);
 
-    doc.font('Helvetica-Bold').fontSize(9);
-    let x = 40;
-    headers.forEach((h, i) => {
-      doc.text(h, x, tableTop, { width: colWidths[i] });
-      x += colWidths[i];
-    });
-
-    doc.moveTo(40, tableTop + 15).lineTo(40 + colWidths.reduce((a, b) => a + b), tableTop + 15).stroke();
-
-    doc.font('Helvetica').fontSize(8);
-    let y = tableTop + 20;
-    products.forEach((p) => {
-      if (y > 550) {
-        doc.addPage();
-        y = 40;
-      }
-      x = 40;
-      const vals = [sanitizeText(p.name), p.sku || '', sanitizeText(p.category?.name || ''), formatCurrency(p.purchasePrice), formatCurrency(p.salePrice), String(p.stock), String(p.minimumStock), p.unit];
-      vals.forEach((v, i) => {
-        doc.text(String(v).substring(0, 20), x, y, { width: colWidths[i] });
-        x += colWidths[i];
+      const items = Array.isArray(products) ? products : [];
+      items.forEach((p) => {
+        const name = sanitizeText(p.name || '').substring(0, 25);
+        const sku = sanitizeText(p.sku || '');
+        const cat = sanitizeText(p.category?.name || '');
+        const pp = formatCurrency(p.purchasePrice);
+        const sp = formatCurrency(p.salePrice);
+        const stock = String(p.stock ?? 0);
+        const min = String(p.minimumStock ?? 0);
+        const unit = sanitizeText(p.unit || '');
+        doc.text(`${name}    ${sku}    ${cat}    ${pp}    ${sp}    ${stock}    ${min}    ${unit}`);
       });
-      y += 15;
-    });
 
-    doc.end();
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
   });
 };
 
@@ -145,47 +137,32 @@ export const exportSalesPdf = async (query = {}) => {
   const totalRevenue = sales.reduce((sum, s) => sum + (s.total || 0), 0);
 
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 40, size: 'A4', layout: 'landscape', bufferPages: true });
+    const doc = new PDFDocument({ size: 'A4', layout: 'landscape' });
     const chunks = [];
     doc.on('data', (chunk) => chunks.push(chunk));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
+    doc.on('error', (err) => reject(err));
 
-    doc.fontSize(20).font('Helvetica-Bold').text(sanitizeText('Reporte de Ventas'), { align: 'center' });
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica').text(sanitizeText(`Total: ${sales.length} ventas - Facturacion: ${formatCurrency(totalRevenue)}`), { align: 'center' });
-    doc.moveDown(1);
+    try {
+      doc.fontSize(18).text(sanitizeText('Reporte de Ventas'), { align: 'center' });
+      doc.moveDown(0.5);
+      doc.fontSize(10).text(sanitizeText(`Total: ${sales.length} ventas - Facturacion: ${formatCurrency(totalRevenue)}`), { align: 'center' });
+      doc.moveDown(1);
 
-    const tableTop = doc.y;
-    const colWidths = [100, 250, 80, 80];
-    const headers = ['Fecha', 'Productos', 'Items', 'Total'];
+      doc.fontSize(9).font('Helvetica-Bold').text('Fecha    Productos    Items    Total');
+      doc.font('Helvetica').fontSize(8);
 
-    doc.font('Helvetica-Bold').fontSize(9);
-    let x = 40;
-    headers.forEach((h, i) => {
-      doc.text(h, x, tableTop, { width: colWidths[i] });
-      x += colWidths[i];
-    });
-
-    doc.moveTo(40, tableTop + 15).lineTo(40 + colWidths.reduce((a, b) => a + b), tableTop + 15).stroke();
-
-    doc.font('Helvetica').fontSize(8);
-    let y = tableTop + 20;
-    sales.forEach((s) => {
-      if (y > 550) {
-        doc.addPage();
-        y = 40;
-      }
-      const productNames = (s.items || []).map((i) => `${sanitizeText(i.productName || i.product?.name || '')} x${i.quantity}`).join(', ').substring(0, 45);
-      x = 40;
-      const vals = [new Date(s.createdAt).toLocaleDateString('es-AR'), productNames, String(s.items?.length || 0), formatCurrency(s.total)];
-      vals.forEach((v, i) => {
-        doc.text(String(v), x, y, { width: colWidths[i] });
-        x += colWidths[i];
+      sales.forEach((s) => {
+        const date = new Date(s.createdAt).toLocaleDateString('es-AR');
+        const prods = (s.items || []).map((i) => `${sanitizeText(i.productName || i.product?.name || '')} x${i.quantity}`).join(', ').substring(0, 50);
+        const items = String(s.items?.length || 0);
+        const total = formatCurrency(s.total);
+        doc.text(`${date}    ${prods}    ${items}    ${total}`);
       });
-      y += 15;
-    });
 
-    doc.end();
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
   });
 };
