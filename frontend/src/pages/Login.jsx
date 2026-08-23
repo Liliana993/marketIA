@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Store } from "lucide-react";
 import toast from "react-hot-toast";
@@ -9,8 +9,10 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+
+  if (user) return <Navigate to="/dashboard" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
