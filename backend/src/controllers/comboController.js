@@ -63,6 +63,7 @@ export const suggestCombos = async (req, res, next) => {
     const suggestions = await comboSuggestionService.suggestCombos();
     res.json({ status: "success", suggestions });
   } catch (error) {
+    console.error("Combo suggestions error:", error.message);
     next(error);
   }
 };

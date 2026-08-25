@@ -8,7 +8,7 @@ const genai = new GoogleGenAI({
 export const generateContent = async (systemPrompt, userMessage) => {
   try {
     const response = await genai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-flash-lite",
       config: {
         systemInstruction: systemPrompt,
       },
@@ -29,9 +29,17 @@ export const generateContent = async (systemPrompt, userMessage) => {
     return text;
   } catch (error) {
     console.error("Gemini API error:", error.message || error);
+    if (error.status) console.error("Gemini status:", error.status);
+    if (error.errorDetails) console.error("Gemini details:", JSON.stringify(error.errorDetails));
 
-    if (error.message?.includes("API key")) {
+    if (error.message?.includes("API key") || error.status === 403) {
       const err = new Error("La API key de Gemini no es válida. Verificá la variable GEMINI_API_KEY en .env");
+      err.statusCode = 500;
+      throw err;
+    }
+
+    if (error.status === 404) {
+      const err = new Error("Modelo de IA no disponible. Verificá el nombre del modelo.");
       err.statusCode = 500;
       throw err;
     }
