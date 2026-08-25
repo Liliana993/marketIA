@@ -59,27 +59,30 @@ export const deletePromotion = async (req, res, next) => {
 export const retryPromotion = async (req, res, next) => {
   try {
     const promotion = await promotionService.getPromotionById(req.params.id);
-
     const combo = await comboService.getComboById(promotion.combo._id);
 
+    let content;
     try {
-      const content = await generatePromotionContent(combo, promotion.channel);
-      await promotionService.updateGeneratedContent(promotion._id, content);
-      const updated = await promotionService.getPromotionById(promotion._id);
-
-      try {
-        await n8nEvents.emitComboPromotionRequested(updated, combo);
-      } catch {
-        // n8n no disponible
-      }
-
-      res.json({ status: "success", promotion: updated });
+      content = await generatePromotionContent(combo, promotion.channel);
     } catch {
-      res.status(500).json({
-        status: "error",
-        message: "No se pudo generar el contenido. Intentá de nuevo.",
-      });
+      content = {
+        title: `${combo.name} - ¡Oferta especial!`,
+        text: `¡Aprovechá el combo ${combo.name}! Por solo $${combo.comboPrice} te llevás todos los productos. Ahorrás $${combo.discount} respecto al precio regular.`,
+        cta: "¡Compralo ahora!",
+        hashtags: ["ofertas", "minimercado", "ahorro", promotion.channel],
+      };
     }
+
+    await promotionService.updateGeneratedContent(promotion._id, content);
+    const updated = await promotionService.getPromotionById(promotion._id);
+
+    try {
+      await n8nEvents.emitComboPromotionRequested(updated, combo);
+    } catch {
+      // n8n no disponible
+    }
+
+    res.json({ status: "success", promotion: updated });
   } catch (error) {
     next(error);
   }

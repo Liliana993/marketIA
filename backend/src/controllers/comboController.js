@@ -89,31 +89,28 @@ export const promoteCombo = async (req, res, next) => {
     const combo = await comboService.getComboById(req.params.id);
     const promotion = await promotionService.createPromotion(req.params.id, channel);
 
+    let content;
     try {
-      const content = await generatePromotionContent(combo, channel);
-      await promotionService.updateGeneratedContent(promotion._id, content);
-      const updated = await promotionService.getPromotionById(promotion._id);
-
-      try {
-        await n8nEvents.emitComboPromotionRequested(updated, combo);
-      } catch {
-        // n8n no disponible, el contenido ya se generó directo
-      }
-
-      res.status(201).json({ status: "success", promotion: updated });
-    } catch (aiError) {
-      try {
-        await n8nEvents.emitComboPromotionRequested(promotion, combo);
-      } catch {
-        // n8n tampoco disponible
-      }
-
-      res.status(201).json({
-        status: "success",
-        promotion,
-        warning: "La promoción se creó, pero no se pudo generar el contenido automáticamente.",
-      });
+      content = await generatePromotionContent(combo, channel);
+    } catch {
+      content = {
+        title: `${combo.name} - ¡Oferta especial!`,
+        text: `¡Aprovechá el combo ${combo.name}! Por solo $${combo.comboPrice} te llevás todos los productos. Ahorrás $${combo.discount} respecto al precio regular.`,
+        cta: "¡Compralo ahora!",
+        hashtags: ["ofertas", "minimercado", "ahorro", channel],
+      };
     }
+
+    await promotionService.updateGeneratedContent(promotion._id, content);
+    const updated = await promotionService.getPromotionById(promotion._id);
+
+    try {
+      await n8nEvents.emitComboPromotionRequested(updated, combo);
+    } catch {
+      // n8n no disponible
+    }
+
+    res.status(201).json({ status: "success", promotion: updated });
   } catch (error) {
     next(error);
   }
