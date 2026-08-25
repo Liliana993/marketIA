@@ -8,7 +8,7 @@ const genai = new GoogleGenAI({
 export const generateContent = async (systemPrompt, userMessage) => {
   try {
     const response = await genai.models.generateContent({
-      model: "gemini-3.5-flash-lite",
+      model: "gemini-2.0-flash",
       config: {
         systemInstruction: systemPrompt,
       },
