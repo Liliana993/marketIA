@@ -43,7 +43,7 @@ const Dashboard = () => {
   if (loading) return <Loading text="Cargando dashboard..." />;
   if (!stats) return <p className="text-center text-gray-500 py-16">No se pudieron cargar los datos.</p>;
 
-  const { todaySales, weeklySales, totalProducts, activeCombos, lowStockProducts, topSelling } = stats;
+  const { todaySales, weekSales, totalProducts, activeCombos, lowStockProducts, topSelling } = stats;
 
   return (
     <div className="space-y-8">
@@ -60,8 +60,8 @@ const Dashboard = () => {
         <StatCard
           icon={ShoppingCart}
           title="Ventas de la semana"
-          value={`$${weeklySales?.total?.toLocaleString() || 0}`}
-          subtitle={`${weeklySales?.count || 0} ventas`}
+          value={`$${weekSales?.total?.toLocaleString() || 0}`}
+          subtitle={`${weekSales?.count || 0} ventas`}
           color="bg-brand-500"
         />
         <StatCard
