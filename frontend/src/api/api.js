@@ -29,6 +29,7 @@ export const salesApi = {
   getAll: (params) => api.get("/sales", { params }),
   getById: (id) => api.get(`/sales/${id}`),
   create: (payload) => api.post("/sales", payload),
+  remove: (id) => api.delete(`/sales/${id}`),
   getStats: (params) => api.get("/sales/stats", { params }),
 };
 

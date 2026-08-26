@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, ChevronDown, ChevronUp, Search, Download } from 'lucide-react';
+import { Plus, ChevronDown, ChevronUp, Search, Download, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { salesApi, exportApi } from '../api/api';
 import { Button, Input, Card, Badge, Loading, Alert } from '../components/ui';
@@ -81,6 +81,17 @@ export default function Sales() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!confirm('¿Eliminar esta venta? Se devolverá el stock de los productos.')) return;
+    try {
+      await salesApi.remove(id);
+      setSales((prev) => prev.filter((s) => s._id !== id));
+      toast.success('Venta eliminada y stock devuelto');
+    } catch {
+      toast.error('Error al eliminar la venta');
+    }
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -144,11 +155,20 @@ export default function Sales() {
                   <Badge>{sale.items?.length || 0} productos</Badge>
                   <span className="font-semibold">{formatCurrency(sale.total)}</span>
                 </div>
-                {expandedId === sale._id ? (
-                  <ChevronUp className="w-5 h-5 text-gray-400" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-400" />
-                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDelete(sale._id); }}
+                    className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                    title="Eliminar venta"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  {expandedId === sale._id ? (
+                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                  )}
+                </div>
               </button>
 
               {expandedId === sale._id && sale.items && (

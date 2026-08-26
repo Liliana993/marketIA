@@ -45,6 +45,15 @@ export const createSale = async (req, res, next) => {
   }
 };
 
+export const deleteSale = async (req, res, next) => {
+  try {
+    await saleService.deleteSale(req.params.id);
+    res.json({ status: "success", message: "Venta eliminada" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getSalesStats = async (req, res, next) => {
   try {
     const { startDate, endDate } = req.query;

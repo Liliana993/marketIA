@@ -78,3 +78,7 @@ export const getTotalSalesByPeriod = async (startDate, endDate) => {
   ]);
   return result[0] || { total: 0, count: 0 };
 };
+
+export const deleteSale = async (id) => {
+  return Sale.findByIdAndDelete(id);
+};

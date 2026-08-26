@@ -90,3 +90,18 @@ export const getSalesByDate = async (startDate, endDate) => {
 export const getTotalSalesByPeriod = async (startDate, endDate) => {
   return saleRepo.getTotalSalesByPeriod(startDate, endDate);
 };
+
+export const deleteSale = async (id) => {
+  const sale = await saleRepo.findById(id);
+  if (!sale) {
+    const error = new Error("Venta no encontrada");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  for (const item of sale.items) {
+    await productRepo.updateStock(item.product, item.quantity);
+  }
+
+  return saleRepo.remove(id);
+};

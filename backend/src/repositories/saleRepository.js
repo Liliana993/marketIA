@@ -13,3 +13,5 @@ export const getTopSellingProducts = async (limit) => saleDao.getTopSellingProdu
 export const getSalesByDate = async (startDate, endDate) => saleDao.getSalesByDate(startDate, endDate);
 
 export const getTotalSalesByPeriod = async (startDate, endDate) => saleDao.getTotalSalesByPeriod(startDate, endDate);
+
+export const remove = async (id) => saleDao.deleteSale(id);

@@ -12,5 +12,6 @@ router.get("/", saleController.getSales);
 router.get("/:id", saleController.getSaleById);
 
 router.post("/", authorize(["admin"]), saleController.createSale);
+router.delete("/:id", authorize(["admin"]), saleController.deleteSale);
 
 export default router;
