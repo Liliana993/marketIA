@@ -62,7 +62,7 @@ export const assistantApi = {
 };
 
 export const dashboardApi = {
-  getStats: () => api.get("/dashboard/stats"),
+  getStats: (todayStart, todayEnd) => api.get("/dashboard/stats", { params: { todayStart, todayEnd } }),
 };
 
 export const exportApi = {

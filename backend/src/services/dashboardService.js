@@ -3,11 +3,11 @@ import * as saleRepo from "../repositories/saleRepository.js";
 import * as comboRepo from "../repositories/comboRepository.js";
 import * as promotionRepo from "../repositories/promotionRepository.js";
 
-export const getDashboardStats = async () => {
+export const getDashboardStats = async (todayStart, todayEnd) => {
   const now = new Date();
 
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+  const startOfDay = todayStart ? new Date(todayStart) : new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfDay = todayEnd ? new Date(todayEnd) : new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 

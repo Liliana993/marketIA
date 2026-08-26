@@ -29,7 +29,10 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data } = await dashboardApi.getStats();
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+        const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).toISOString();
+        const { data } = await dashboardApi.getStats(todayStart, todayEnd);
         setStats(data.stats);
       } catch (err) {
         console.error("Error loading dashboard:", err);
@@ -119,7 +122,7 @@ const Dashboard = () => {
                       <span className="text-sm font-medium text-gray-400 w-5">{index + 1}</span>
                       <span className="text-sm text-gray-700">{product.name}</span>
                     </div>
-                    <Badge variant="brand">{product.totalSold} vendidos</Badge>
+                      <Badge variant="brand">{product.totalQuantity} vendidos</Badge>
                   </div>
                 ))}
               </div>
