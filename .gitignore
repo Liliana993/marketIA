@@ -1,4 +1,6 @@
 node_modules/
+.ecommerce-api/
+ecommerce-api/
 .env
 dist/
 *.log

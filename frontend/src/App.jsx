@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Layout from "./components/layout/Layout";
 import ProtectedRoute from "./components/ui/ProtectedRoute";
-import Loading from "./components/ui/Loading";
+import WakingUp from "./components/ui/WakingUp";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -21,7 +21,7 @@ import Assistant from "./pages/Assistant";
 function App() {
   const { loading } = useAuth();
 
-  if (loading) return <Loading />;
+  if (loading) return <WakingUp />;
 
   return (
     <Routes>
